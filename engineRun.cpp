@@ -26,6 +26,31 @@ static bool stdinReady()
     return select(STDIN_FILENO + 1, &rfds, nullptr, nullptr, &tv) > 0;
 }
 
+
+static int calculateSuckCylinder(double rpm, double elapsedSeconds)
+{
+    if (rpm < 50.0) {
+        return 0;
+    }
+
+    double revolutions = rpm / 60.0 * elapsedSeconds;
+    double cycleDegrees = std::fmod(revolutions * 360.0, 720.0);
+    int phase = static_cast<int>(std::floor(cycleDegrees / 180.0)) % 4;
+    const int firingOrder[4] = {1, 3, 4, 2};
+    return firingOrder[(phase) % 4];
+}
+static int calculateCompressionCylinder(double rpm, double elapsedSeconds)
+{
+    if (rpm < 50.0) {
+        return 0;
+    }
+
+    double revolutions = rpm / 60.0 * elapsedSeconds;
+    double cycleDegrees = std::fmod(revolutions * 360.0, 720.0);
+    int phase = static_cast<int>(std::floor(cycleDegrees / 180.0)) % 4;
+    const int firingOrder[4] = {1, 3, 4, 2};
+    return firingOrder[(phase + 1) % 4];
+}
 static int calculateFiringCylinder(double rpm, double elapsedSeconds)
 {
     if (rpm < 50.0) {
@@ -36,23 +61,78 @@ static int calculateFiringCylinder(double rpm, double elapsedSeconds)
     double cycleDegrees = std::fmod(revolutions * 360.0, 720.0);
     int phase = static_cast<int>(std::floor(cycleDegrees / 180.0)) % 4;
     const int firingOrder[4] = {1, 3, 4, 2};
-    return firingOrder[(phase + 4) % 4];
+    return firingOrder[(phase + 2) % 4];
+}
+static int calculateExhaustCylinder(double rpm, double elapsedSeconds)
+{
+    if (rpm < 50.0) {
+        return 0;
+    }
+
+    double revolutions = rpm / 60.0 * elapsedSeconds;
+    double cycleDegrees = std::fmod(revolutions * 360.0, 720.0);
+    int phase = static_cast<int>(std::floor(cycleDegrees / 180.0)) % 4;
+    const int firingOrder[4] = {1, 3, 4, 2};
+    return firingOrder[(phase + 3) % 4];
 }
 
-static std::string inline4FiringArt(int activeCylinder)
+static std::string inline4FiringArt(double rpm, double elapsedSeconds)
 {
     std::ostringstream art;
-    art << "Firing: ";
-    for (int cylinder = 1; cylinder <= 4; ++cylinder) {
-        if (cylinder == activeCylinder) {
-            art << "[>" << cylinder << "<] ";
-        } else {
-            art << "[ " << cylinder << " ] ";
+    
+    int firingCylinder = calculateFiringCylinder(rpm, elapsedSeconds);
+    int compressionCylinder = calculateCompressionCylinder(rpm, elapsedSeconds);
+    int exhaustCylinder = calculateExhaustCylinder(rpm, elapsedSeconds);
+    int intakeCylinder = calculateSuckCylinder(rpm, elapsedSeconds);
+    
+
+    if (firingCylinder == 0) {
+        art.str("Idle - Firing: [ 0 ]");
+    } else {
+        
+        art << "Intake: ";
+        for (int cylinder = 1; cylinder <= 4; ++cylinder) {
+            if (cylinder == intakeCylinder) {
+                art << "[>" << cylinder << "<] ";
+            } else {
+                art << "[ " << cylinder << " ] ";
+            }
         }
+        art << "\n";
+        
+        art << "Compression: ";
+        for (int cylinder = 1; cylinder <= 4; ++cylinder) {
+            if (cylinder == compressionCylinder) {
+                art << "[>" << cylinder << "<] ";
+            } else {
+                art << "[ " << cylinder << " ] ";
+            }
+        }
+
+        art << "\n";
+
+        art << "Firing: ";
+        for (int cylinder = 1; cylinder <= 4; ++cylinder) {
+            if (cylinder == firingCylinder) {
+                art << "[>" << cylinder << "<] ";
+            } else {
+                art << "[ " << cylinder << " ] ";
+            }
+        }
+        art << "\n";
+        
+        art << "Exhaust: ";
+        for (int cylinder = 1; cylinder <= 4; ++cylinder) {
+            if (cylinder == exhaustCylinder) {
+                art << "[>" << cylinder << "<] ";
+            } else {
+                art << "[ " << cylinder << " ] ";
+            }
+        }
+        art << "\n";
+        
     }
-    if (activeCylinder == 0) {
-        art.str("Firing: idle");
-    }
+    
     return art.str();
 }
 
@@ -106,7 +186,8 @@ int main(int argc, char* argv[])
         std::cout << "Enter one of the following:\n";
         std::cout << "  3 values: totalTime throttlePercent duration  (scheduled run)\n";
         std::cout << "  1 value : throttlePercent  (start interactive with that throttle)\n";
-        std::cout << "  blank   : continuous interactive mode\n> ";
+        std::cout << "  blank   : continuous interactive mode\n";
+        std::cout << "During sim: Enter throttle (0-100), [p]ause, or [q]uit\n> ";
         std::cout.flush();
         std::string startupLine;
         if (std::getline(std::cin, startupLine) && !startupLine.empty()) {
@@ -139,7 +220,26 @@ int main(int argc, char* argv[])
     }
 
     auto lastPrompt = std::chrono::steady_clock::now();
+    bool paused = false;
     while (interactive ? true : (timeSeconds < simTotal)) {
+        if (paused) {
+            std::string line;
+            if (std::getline(std::cin, line)) {
+                if (!line.empty()) {
+                    char cmd = line[0];
+                    if (cmd == 'c' || cmd == 'C') {
+                        paused = false;
+                        std::cout << "Resumed.\n";
+                    } else if (cmd == 'q' || cmd == 'Q') {
+                        break;
+                    } else {
+                        std::cout << "Paused - Commands: [c]ontinue, [q]uit\n";
+                    }
+                }
+            }
+            continue;
+        }
+
         bool gotCanCommand = false;
         if (can.isInitialized()) {
             can.processInput(throttlePosition, gotCanCommand);
@@ -149,14 +249,23 @@ int main(int argc, char* argv[])
             if (interactive) {
                 std::string line;
                 if (stdinReady() && std::getline(std::cin, line)) {
-                    if (!line.empty() && (line[0] == 'q' || line[0] == 'Q')) {
-                        break;
-                    }
-                    try {
-                        double value = std::stod(line);
-                        throttlePosition = std::clamp(value / 100.0, 0.0, 1.0);
-                    } catch (...) {
-                        std::cerr << "Invalid throttle input.\n";
+                    if (!line.empty()) {
+                        char cmd = line[0];
+                        if (cmd == 'q' || cmd == 'Q') {
+                            break;
+                        } else if (cmd == 'p' || cmd == 'P') {
+                            paused = true;
+                            std::cout << "\n=== PAUSED ===\n";
+                            std::cout << "Commands: [c]ontinue, [q]uit\n";
+                            continue;
+                        } else {
+                            try {
+                                double value = std::stod(line);
+                                throttlePosition = std::clamp(value / 100.0, 0.0, 1.0);
+                            } catch (...) {
+                                std::cerr << "Invalid throttle input.\n";
+                            }
+                        }
                     }
                 }
             } else {
@@ -182,10 +291,11 @@ int main(int argc, char* argv[])
 
         if (static_cast<int>(timeSeconds / dt) % 20 == 0) {
             const auto& state = engine.state();
-            int currentCylinder = calculateFiringCylinder(state.rpm, timeSeconds);
             std::cout << std::fixed << std::setprecision(1)
                       << "t=" << timeSeconds << "s "
                       << "RPM=" << state.rpm << " "
+                      << "Torque=" << state.torque << "Nm "
+                      << "hp:" << (state.rpm * state.torque * 2 * M_PI / 60.0) / 745.7 << " "
                       << "Throttle=" << throttlePosition * 100.0 << "% "
                       << "Boost=" << state.boostPressure << "bar "
                       << "Fuel=" << state.fuelRate << "L/h "
@@ -194,7 +304,7 @@ int main(int argc, char* argv[])
                       << "Oil=" << state.oilTemp << "C "
                       << "Intake=" << state.intakeAirTemp << "C "
                       << "Exhaust=" << state.exhaustTemp << "C\n";
-            std::cout << inline4FiringArt(currentCylinder) << "\n";
+            std::cout << inline4FiringArt(state.rpm, timeSeconds) << "\n";
         }
 
         std::this_thread::sleep_for(std::chrono::duration<double>(dt));

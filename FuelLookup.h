@@ -7,7 +7,6 @@ inline double bilinearInterpolate(double x0, double x1, double y0, double y1,
                                   double f00, double f10, double f01, double f11,
                                   double x, double y)
 {
-    // handle degenerate cases where axis points are equal
     if (x1 == x0 && y1 == y0) return f00;
     if (x1 == x0) {
         double t = (y - y0) / (y1 - y0);
@@ -28,17 +27,14 @@ inline double bilinearInterpolate(double x0, double x1, double y0, double y1,
 
 inline double lookupFuelPulseWidth(double rpm, double load)
 {
-    // clamp inputs
     rpm = std::clamp(rpm, FuelMap::rpmAxis[0], FuelMap::rpmAxis[FuelMap::rpmPoints - 1]);
     load = std::clamp(load, FuelMap::loadAxis[0], FuelMap::loadAxis[FuelMap::loadPoints - 1]);
 
-    // find RPM index
     int ri = 0;
     for (int i = 0; i < FuelMap::rpmPoints - 1; ++i) {
         if (rpm >= FuelMap::rpmAxis[i] && rpm <= FuelMap::rpmAxis[i+1]) { ri = i; break; }
     }
 
-    // find Load index
     int li = 0;
     for (int j = 0; j < FuelMap::loadPoints - 1; ++j) {
         if (load >= FuelMap::loadAxis[j] && load <= FuelMap::loadAxis[j+1]) { li = j; break; }

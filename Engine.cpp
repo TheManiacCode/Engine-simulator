@@ -23,11 +23,11 @@ void Engine::update(double dt, double throttlePosition, const FuelSystem& fuel, 
     double rpmError = targetRpm - state_.rpm;
     double rpmAdjustment = rpmError * 0.35;
 
-    double torqueBase = 70.0 + 130.0 * std::tanh(fuel.fuelRate() * 0.25);
-    double boostFactor = 1.0 + std::clamp(turbo.boostPressure(), 0.0, 2.0) * 0.18;
-    double availableTorque = std::clamp(torqueBase * boostFactor, 0.0, 420.0);
+    double torqueBase = 70.0 + 130.0 * std::tanh(fuel.fuelRate() * 0.3);
+    double boostFactor = 1.0 + std::clamp(turbo.boostPressure(), 0.0, 2.5) * 0.26;
+    double availableTorque = std::clamp(torqueBase * boostFactor, 0.0, 600.0);
 
-    double friction = 30.0 + state_.rpm * 0.015;
+    double friction = 30.0 + state_.rpm * 0.012;
     double netTorque = std::max(0.0, availableTorque - friction);
 
     double rpmDelta = (netTorque - 20.0) * dt * 0.45;
@@ -35,7 +35,7 @@ void Engine::update(double dt, double throttlePosition, const FuelSystem& fuel, 
     state_.rpm = std::clamp(state_.rpm, 700.0, 6000.0);
 
     state_.torque = availableTorque;
-    state_.load = std::clamp(netTorque / 420.0, 0.0, 1.0);
+    state_.load = std::clamp(netTorque / 600.0, 0.0, 1.0);
     state_.boostPressure = turbo.boostPressure();
     state_.fuelRate = fuel.fuelRate();
     state_.airMassFlow = intake.airMassFlow();
