@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Sensors.h"
-
+#include "FuelLookup.h"
 class ECU {
 public:
     struct FuelCommand {
@@ -11,7 +11,8 @@ public:
     };
 
     ECU();
-    void update(double dt, const Sensors::Readings& sensors);
+    // Now accepts current engine RPM so the ECU can lookup fuel from a 2D map
+    void update(double dt, const Sensors::Readings& sensors, double currentRpm);
 
     const FuelCommand& fuelCommand() const;
     bool faultActive() const;

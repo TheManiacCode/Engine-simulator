@@ -6,11 +6,23 @@ ECU::ECU()
 {
 }
 
-void ECU::update(double dt, const Sensors::Readings& sensors)
+void ECU::update(double dt, const Sensors::Readings& sensors, double currentRpm)
 {
     (void)dt;
+    // base load is driven by throttle position for this simple model
+    double baseLoad = std::clamp(sensors.throttlePosition, 0.0, 1.0);
+
+    // lookup base pulse width from 2D fuel map (RPM x Load)
+    command_.pulseWidthMs = lookupFuelPulseWidth(currentRpm, baseLoad);
+
+    // apply boost correction (simple multiplicative factor)
+    double boostCorrection = 1.0 + sensors.boostPressure * 0.05;
+    command_.pulseWidthMs *= boostCorrection;
+
+    // clamp to safe injector range
+    command_.pulseWidthMs = std::clamp(command_.pulseWidthMs, 0.05, 8.2);
+
     command_.targetRpm = std::clamp(800.0 + sensors.throttlePosition * 5200.0, 800.0, 6000.0);
-    command_.pulseWidthMs = std::clamp(0.8 + sensors.throttlePosition * 2.9 + sensors.boostPressure * 0.2, 0.5, 4.2);
     command_.clearFaults = false;
 
     if (sensors.coolantTemp > 118.0 || sensors.oilTemp > 140.0) {

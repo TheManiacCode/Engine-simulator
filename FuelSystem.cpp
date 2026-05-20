@@ -3,15 +3,34 @@
 #include <algorithm>
 
 FuelSystem::FuelSystem()
-    : fuelRate_(0.0), pressure_(0.0), filterDelta_(0.0), temperature_(35.0), filterClog_(0.0)
+    : fuelRate_(0.0), pressure_(0.0), filterDelta_(0.0), temperature_(35.0), filterClog_(0.0),
+      fuelRemaining_(tankCapacity)
 {
 }
 
 void FuelSystem::update(double dt, const ECU& ecu, const Sensors& sensors)
 {
+    if (fuelRemaining_ <= 0.0) {
+        fuelRate_ = 0.0;
+        pressure_ = 0.0;
+        filterDelta_ = 0.1;
+        temperature_ += (25.0 - temperature_) * dt * 0.4;
+        temperature_ = std::clamp(temperature_, 25.0, 95.0);
+        filterClog_ = std::max(0.0, filterClog_ - dt * 0.0005);
+        return;
+    }
+
     double baseFlow = std::clamp(ecu.fuelCommand().pulseWidthMs * 0.22, 0.0, 3.8);
     double boostFactor = 1.0 + std::clamp(sensors.readings().boostPressure, 0.0, 2.0) * 0.15;
     fuelRate_ = std::clamp(baseFlow * boostFactor, 0.05, 6.2);
+
+    double consumedLiters = fuelRate_ / 3600.0 * dt;
+    if (consumedLiters >= fuelRemaining_) {
+        fuelRate_ = fuelRemaining_ / dt * 3600.0;
+        fuelRemaining_ = 0.0;
+    } else {
+        fuelRemaining_ -= consumedLiters;
+    }
 
     pressure_ = std::clamp(35.0 + fuelRate_ * 4.5 - filterClog_ * 2.5, 20.0, 80.0);
     filterDelta_ = std::clamp(fuelRate_ * 0.08 + filterClog_ * 0.9, 0.1, 6.0);
@@ -40,4 +59,14 @@ double FuelSystem::filterDelta() const
 double FuelSystem::temperature() const
 {
     return temperature_;
+}
+
+double FuelSystem::fuelRemaining() const
+{
+    return fuelRemaining_;
+}
+
+bool FuelSystem::hasFuel() const
+{
+    return fuelRemaining_ > 0.0;
 }
