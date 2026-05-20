@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
     Turbocharger turbo;
     FuelSystem fuel;
     AirIntake intake;
-    CoolingSystem cooling;
+    CoolingSystem cooling(CoolantFluidType::HighPerformance);
     Sensors sensors;
     ECU ecu;
 
