@@ -13,9 +13,7 @@ Engine::Engine()
 {
 }
 
-void Engine::update(double dt, double throttlePosition, const FuelSystem& fuel, const AirIntake& intake,
-                    const Turbocharger& turbo, const CoolingSystem& cooling, const Sensors& sensors,
-                    const ECU& ecu)
+void Engine::update(double dt, double throttlePosition, const FuelSystem& fuel, const AirIntake& intake, const Turbocharger& turbo, const CoolingSystem& cooling, const Sensors& sensors, const ECU& ecu)
 {
     (void)sensors;
     (void)ecu;
@@ -24,7 +22,7 @@ void Engine::update(double dt, double throttlePosition, const FuelSystem& fuel, 
     double rpmAdjustment = rpmError * 0.35;
 
     double torqueBase = 70.0 + 130.0 * std::tanh(fuel.fuelRate() * 0.3);
-    double boostFactor = 1.0 + std::clamp(turbo.boostPressure(), 0.0, 2.5) * 0.26;
+    double boostFactor = 1.0 + std::clamp(turbo.boostPressure(), 0.0, 2.5) * 0.3;
     double availableTorque = std::clamp(torqueBase * boostFactor, 0.0, 600.0);
 
     double friction = 30.0 + state_.rpm * 0.012;
