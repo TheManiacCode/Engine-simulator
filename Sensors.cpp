@@ -11,6 +11,10 @@ void Sensors::sample(const Engine::State& engineState, double throttlePosition)
     current_.intakeTemp = engineState.intakeAirTemp;
     current_.exhaustTemp = engineState.exhaustTemp;
     current_.boostPressure = engineState.boostPressure;
+    double loadFactor = throttlePosition;
+    double rpmFactor = engineState.rpm / 6000.0;
+    current_.dieselContentPPM = 10.0 + (loadFactor * rpmFactor * 450);
+    current_.dieselContentPPM = std::clamp(current_.dieselContentPPM, 0.0, 2000.0);
 }
 
 const Sensors::Readings& Sensors::readings() const

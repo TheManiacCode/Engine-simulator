@@ -44,6 +44,7 @@ void Engine::update(double dt, double throttlePosition, const FuelSystem& fuel, 
     state_.fuelTemp = fuel.temperature();
     state_.mafVoltage = intake.mafVoltage();
     state_.mapPressure = std::clamp(101.3 + state_.boostPressure * 95.0, 60.0, 340.0);
+    state_.unburntFuelInExhaust = ecu.unburntFuelInExhaust();
 }
 
 const Engine::State& Engine::state() const

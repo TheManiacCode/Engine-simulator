@@ -7,22 +7,27 @@ BS_:
 BU_: ECU ENGINE_SENSOR
 
 BO_ 256 EngineStatus: 8 ECU
- SG_ EngineRPM : 0|16@1+ (0.25,0) [0|6000] "rpm" ECU
- SG_ ThrottlePosition : 16|8@1+ (0.4,0) [0|100] "%" ECU
- SG_ BoostPressure : 24|8@1+ (0.05,0) [0|12.75] "bar" ECU
+ SG_ EngineRPM : 0|8@1+ (0.4,0) [0|6000] "rpm" ECU
+ SG_ ThrottlePosition : 8|8@1+ (0.4,0) [0|100] "%" ECU
+ SG_ BoostPressure : 16|8@1+ (0.04,0) [0|10.2] "bar" ECU
  SG_ EngineLoad : 32|8@1+ (0.4,0) [0|100] "%" ECU
 
 BO_ 257 Temperatures: 8 ECU
  SG_ CoolantTemp : 0|8@1+ (1,-40) [-40|215] "degC" ECU
  SG_ OilTemp : 8|8@1+ (1,-40) [-40|215] "degC" ECU
  SG_ IntakeAirTemp : 16|8@1+ (1,-40) [-40|215] "degC" ECU
- SG_ ExhaustTemp : 24|8@1+ (1,100) [100|355] "degC" ECU
+ SG_ ExhaustTemp : 24|8@1+ (2.5,100) [100|737,5] "degC" ECU
 
 BO_ 258 FuelStatus: 8 ECU
  SG_ FuelRate : 0|8@1+ (0.05,0) [0|12.75] "L/h" ECU
- SG_ FuelPressure : 8|8@1+ (0.5,0) [0|127.5] "bar" ECU
+ SG_ FuelPressure : 8|8@1+ (0.125,0) [0|32] "bar" ECU
  SG_ FuelTemp : 16|8@1+ (0.5,0) [0|127.5] "degC" ECU
  SG_ FilterDeltaP : 24|8@1+ (0.04,0) [0|10.2] "bar" ECU
+
+BO_ 259 ExhaustContent: 8 ECU
+ SG_ DieselContentPPm : 0 : 16|8@1+ (0.1,0) [0|6553.5] "ppm" ECU
+ SG_ ParticleFilter_deltaP : 16|8@1+ (0.04,0) [0|11] "bar" ECU
+ SG_ o2_Sensor_Reading : 24|8@1+ (0.5,0) [0|127.5] "%" ECU
 
 BO_ 512 CommandInputs: 8 ECU
  SG_ ThrottleCommand : 0|8@1+ (0.4,0) [0|100] "%" ECU

@@ -29,3 +29,7 @@ The terminal prints a big string that indicates what is happening to the engine,
 
 Mostly just shows off what happens to a engine when it is running for demonstration or to understand it.
 Some components have health that will signal when it gets damaged to indicate that the car gets hurt by pushing it too much. The wear and tear is not super accurate but at least an indication to the wear the engine takes from pushing it. 
+The exhaust gases sensors is not something I have a clue about so the readings are wierd but should give you an indication of what it reads.
+## Can?
+Yes, I have a can sender that should send out decent can messages. My idea is to use a vcan to send the can messages on and pick them up on another script using a simple python script.
+If you want to you could when running the script also add where the can messages should go, example: ./engineSimulator vcan0

@@ -27,6 +27,7 @@ void ECU::update(double dt, const Sensors::Readings& sensors, double currentRpm)
     } else if (faultActive_ && sensors.coolantTemp < 105.0) {
         faultActive_ = false;
     }
+    unburntFuelInExhaust_ = std::clamp(((0.2 * sensors.exhaustTemp) / sensors.dieselContentPPM), 0.0, 255.0);
 }
 
 const ECU::FuelCommand& ECU::fuelCommand() const
@@ -37,4 +38,8 @@ const ECU::FuelCommand& ECU::fuelCommand() const
 bool ECU::faultActive() const
 {
     return faultActive_;
+}
+double ECU::unburntFuelInExhaust() const
+{
+    return unburntFuelInExhaust_;
 }

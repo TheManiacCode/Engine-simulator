@@ -13,6 +13,7 @@ public:
         double intakeTemp = 25.0;
         double exhaustTemp = 260.0;
         double boostPressure = 0.0;
+        double dieselContentPPM = 0.0;
     };
 
     void sample(const Engine::State& engineState, double throttlePosition);

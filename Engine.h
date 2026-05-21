@@ -23,6 +23,7 @@ public:
         double fuelTemp = 30.0;
         double mafVoltage = 0.0;
         double mapPressure = 101.3;
+        double unburntFuelInExhaust = 0.0;
     };
 
     Engine();

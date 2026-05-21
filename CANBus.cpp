@@ -90,7 +90,7 @@ void CANBus::sendEngineState(const Engine& engine, const Sensors& sensors) const
     frame.data[1] = static_cast<uint8_t>(reading.throttlePosition * 250.0);
     frame.data[2] = static_cast<uint8_t>(std::clamp(state.boostPressure * 25.0, 0.0, 255.0));
     frame.data[3] = static_cast<uint8_t>(std::clamp(state.load * 250.0, 0.0, 255.0));
-    frame.data[4] = 0;
+    frame.data[4] = static_cast<uint8_t>(std::clamp(state.torque / 2.5, 0.0, 255.0));
     frame.data[5] = 0;
     frame.data[6] = 0;
     frame.data[7] = 0;
@@ -101,7 +101,7 @@ void CANBus::sendEngineState(const Engine& engine, const Sensors& sensors) const
     frame.data[1] = static_cast<uint8_t>(std::clamp((reading.oilTemp + 40.0) * 1.2, 0.0, 255.0));
     frame.data[2] = static_cast<uint8_t>(std::clamp((reading.intakeTemp + 40.0) * 1.2, 0.0, 255.0));
     frame.data[3] = static_cast<uint8_t>(std::clamp((reading.exhaustTemp - 100.0) * 0.4, 0.0, 255.0));
-    frame.data[4] = 0;
+    frame.data[4] = static_cast<uint8_t>(std::clamp(reading.mapPressure * 2.0, 0.0, 255.0));
     frame.data[5] = 0;
     frame.data[6] = 0;
     frame.data[7] = 0;
@@ -111,8 +111,19 @@ void CANBus::sendEngineState(const Engine& engine, const Sensors& sensors) const
     frame.data[0] = static_cast<uint8_t>(std::clamp(state.fuelRate * 20.0, 0.0, 255.0));
     frame.data[1] = static_cast<uint8_t>(std::clamp(engine.state().fuelRate * 8.0, 0.0, 255.0));
     frame.data[2] = static_cast<uint8_t>(std::clamp(sensors.readings().boostPressure * 50.0, 0.0, 255.0));
-    frame.data[3] = 0;
+    frame.data[3] = static_cast<uint8_t>(std::clamp(state.airMassFlow * 36.0, 0.0, 255.0));
     frame.data[4] = 0;
+    frame.data[5] = 0;
+    frame.data[6] = 0;
+    frame.data[7] = 0;
+    write(socketFd_, &frame, sizeof(frame));
+
+    frame.can_id = 0x103;
+    frame.data[0] = static_cast<uint8_t>(std::clamp(reading.dieselContentPPM / 8.0, 0.0, 255.0));
+    frame.data[1] = static_cast<uint8_t>(std::clamp(state.unburntFuelInExhaust * 1.0, 0.0, 255.0));
+    frame.data[2] = static_cast<uint8_t>(std::clamp((reading.exhaustTemp/900) * 255.0, 0.0, 255.0));
+    frame.data[3] = 0;
+    frame.data[4] = 0; 
     frame.data[5] = 0;
     frame.data[6] = 0;
     frame.data[7] = 0;

@@ -110,6 +110,8 @@ static std::string inline4FiringArt(double rpm, double elapsedSeconds)
         }
 
         art << "\n";
+        //If you want to add a beep sound on firing, uncomment next line
+        // art << "\a"; 
 
         art << "Firing: ";
         for (int cylinder = 1; cylinder <= 4; ++cylinder) {

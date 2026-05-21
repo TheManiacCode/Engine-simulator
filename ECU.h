@@ -15,8 +15,10 @@ public:
 
     const FuelCommand& fuelCommand() const;
     bool faultActive() const;
+    double unburntFuelInExhaust() const;
 
 private:
+    double unburntFuelInExhaust_;
     FuelCommand command_;
     bool faultActive_;
 };
