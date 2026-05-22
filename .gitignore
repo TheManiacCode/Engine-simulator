@@ -1,0 +1,10 @@
+# Ignore build artifacts
+*.o
+*.out
+*.bin
+*.elf
+*.map
+*.d
+
+# Ignore compiled file
+engineSimulator
