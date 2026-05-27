@@ -29,7 +29,8 @@ static bool stdinReady()
 
 static int calculateSuckCylinder(double rpm, double elapsedSeconds)
 {
-    if (rpm < 50.0) {
+    if (rpm < 50.0) 
+    {
         return 0;
     }
 
@@ -41,7 +42,8 @@ static int calculateSuckCylinder(double rpm, double elapsedSeconds)
 }
 static int calculateCompressionCylinder(double rpm, double elapsedSeconds)
 {
-    if (rpm < 50.0) {
+    if (rpm < 50.0) 
+    {
         return 0;
     }
 
@@ -53,7 +55,8 @@ static int calculateCompressionCylinder(double rpm, double elapsedSeconds)
 }
 static int calculateFiringCylinder(double rpm, double elapsedSeconds)
 {
-    if (rpm < 50.0) {
+    if (rpm < 50.0) 
+    {
         return 0;
     }
 
@@ -65,7 +68,8 @@ static int calculateFiringCylinder(double rpm, double elapsedSeconds)
 }
 static int calculateExhaustCylinder(double rpm, double elapsedSeconds)
 {
-    if (rpm < 50.0) {
+    if (rpm < 50.0) 
+    {
         return 0;
     }
 
@@ -86,13 +90,16 @@ static std::string inline4FiringArt(double rpm, double elapsedSeconds)
     int intakeCylinder = calculateSuckCylinder(rpm, elapsedSeconds);
     
 
-    if (firingCylinder == 0) {
+    if (firingCylinder == 0) 
+    {
         art.str("Idle - Firing: [ 0 ]");
     } else {
         
         art << "Intake: ";
-        for (int cylinder = 1; cylinder <= 4; ++cylinder) {
-            if (cylinder == intakeCylinder) {
+        for (int cylinder = 1; cylinder <= 4; ++cylinder) 
+        {
+            if (cylinder == intakeCylinder) 
+            {
                 art << "[>" << cylinder << "<] ";
             } else {
                 art << "[ " << cylinder << " ] ";
@@ -101,10 +108,12 @@ static std::string inline4FiringArt(double rpm, double elapsedSeconds)
         art << "\n";
         
         art << "Compression: ";
-        for (int cylinder = 1; cylinder <= 4; ++cylinder) {
+        for (int cylinder = 1; cylinder <= 4; ++cylinder) 
+        {
             if (cylinder == compressionCylinder) {
                 art << "[>" << cylinder << "<] ";
-            } else {
+            } else 
+            {
                 art << "[ " << cylinder << " ] ";
             }
         }
@@ -114,20 +123,26 @@ static std::string inline4FiringArt(double rpm, double elapsedSeconds)
         // art << "\a"; 
 
         art << "Firing: ";
-        for (int cylinder = 1; cylinder <= 4; ++cylinder) {
-            if (cylinder == firingCylinder) {
+        for (int cylinder = 1; cylinder <= 4; ++cylinder) 
+        {
+            if (cylinder == firingCylinder) 
+            {
                 art << "[>" << cylinder << "<] ";
-            } else {
+            } else 
+            {
                 art << "[ " << cylinder << " ] ";
             }
         }
         art << "\n";
         
         art << "Exhaust: ";
-        for (int cylinder = 1; cylinder <= 4; ++cylinder) {
-            if (cylinder == exhaustCylinder) {
+        for (int cylinder = 1; cylinder <= 4; ++cylinder) 
+        {
+            if (cylinder == exhaustCylinder) 
+            {
                 art << "[>" << cylinder << "<] ";
-            } else {
+            } else 
+            {
                 art << "[ " << cylinder << " ] ";
             }
         }
@@ -145,22 +160,27 @@ int main(int argc, char* argv[])
     double cmdThrottlePercent = -1.0;
     double cmdThrottleDuration = 0.0;
 
-    if (argc == 4) {
+    if (argc == 4) 
+    {
         simTotal = std::stod(argv[1]);
         cmdThrottlePercent = std::stod(argv[2]);
         cmdThrottleDuration = std::stod(argv[3]);
-    } else if (argc == 5) {
+    } else if (argc == 5) 
+    {
         canInterface = argv[1];
         simTotal = std::stod(argv[2]);
         cmdThrottlePercent = std::stod(argv[3]);
         cmdThrottleDuration = std::stod(argv[4]);
-    } else if (argc > 1) {
+    } else if (argc > 1) 
+    {
         canInterface = argv[1];
     }
 
     CANBus can;
-    if (!canInterface.empty()) {
-        if (!can.initialize(canInterface)) {
+    if (!canInterface.empty()) 
+    {
+        if (!can.initialize(canInterface)) 
+        {
             std::cerr << "Warning: CAN initialization failed, running simulation without CAN.\n";
         }
     }
@@ -184,7 +204,8 @@ int main(int argc, char* argv[])
     std::cout << "Diesel ECU simulator starting. Use throttle 0-100 or CAN command on "
               << (canInterface.empty() ? "none" : canInterface) << ".\n";
     std::cout << "Fuel tank capacity: 60.0 L.\n";
-    if (interactive) {
+    if (interactive) 
+    {
         std::cout << "Enter one of the following:\n";
         std::cout << "  3 values: totalTime throttlePercent duration  (scheduled run)\n";
         std::cout << "  1 value : throttlePercent  (start interactive with that throttle)\n";
@@ -192,7 +213,8 @@ int main(int argc, char* argv[])
         std::cout << "During sim: Enter throttle (0-100), [p]ause, or [q]uit\n> ";
         std::cout.flush();
         std::string startupLine;
-        if (std::getline(std::cin, startupLine) && !startupLine.empty()) {
+        if (std::getline(std::cin, startupLine) && !startupLine.empty()) 
+        {
             std::istringstream iss(startupLine);
             double a, b, c;
             if (iss >> a >> b >> c) {
@@ -203,38 +225,50 @@ int main(int argc, char* argv[])
                 interactive = false;
                 std::cout << "Scheduled run: " << simTotal << "s, throttle=" << cmdThrottlePercent
                           << "% for " << cmdThrottleDuration << "s\n";
-            } else {
+            } else 
+            {
                 iss.clear();
                 iss.str(startupLine);
-                if (iss >> a && !(iss >> b)) {
+                if (iss >> a && !(iss >> b)) 
+                {
                     throttlePosition = std::clamp(a / 100.0, 0.0, 1.0);
                     std::cout << "Interactive mode enabled with initial throttle=" << a << "%\n";
-                } else {
+                } else 
+                {
                     std::cout << "Continuous interactive throttle mode enabled.\n";
                 }
             }
-        } else {
+        } else 
+        {
             std::cout << "Continuous interactive throttle mode enabled.\n";
         }
-    } else {
+    } else 
+    {
         std::cout << "Scheduled run: " << simTotal << "s, throttle=" << cmdThrottlePercent << "% for "
                   << cmdThrottleDuration << "s\n";
     }
 
     auto lastPrompt = std::chrono::steady_clock::now();
     bool paused = false;
-    while (interactive ? true : (timeSeconds < simTotal)) {
-        if (paused) {
+    while (interactive ? true : (timeSeconds < simTotal)) 
+    {
+        if (paused) 
+        {
             std::string line;
-            if (std::getline(std::cin, line)) {
-                if (!line.empty()) {
+            if (std::getline(std::cin, line)) 
+            {
+                if (!line.empty()) 
+                {
                     char cmd = line[0];
-                    if (cmd == 'c' || cmd == 'C') {
+                    if (cmd == 'c' || cmd == 'C') 
+                    {
                         paused = false;
                         std::cout << "Resumed.\n";
-                    } else if (cmd == 'q' || cmd == 'Q') {
+                    } else if (cmd == 'q' || cmd == 'Q') 
+                    {
                         break;
-                    } else {
+                    } else 
+                    {
                         std::cout << "Paused - Commands: [c]ontinue, [q]uit\n";
                     }
                 }
@@ -243,37 +277,50 @@ int main(int argc, char* argv[])
         }
 
         bool gotCanCommand = false;
-        if (can.isInitialized()) {
+        if (can.isInitialized()) 
+        {
             can.processInput(throttlePosition, gotCanCommand);
         }
 
-        if (!gotCanCommand) {
-            if (interactive) {
+        if (!gotCanCommand) 
+        {
+            if (interactive) 
+            {
                 std::string line;
-                if (stdinReady() && std::getline(std::cin, line)) {
-                    if (!line.empty()) {
+                if (stdinReady() && std::getline(std::cin, line)) 
+                {
+                    if (!line.empty()) 
+                    {
                         char cmd = line[0];
-                        if (cmd == 'q' || cmd == 'Q') {
+                        if (cmd == 'q' || cmd == 'Q') 
+                        {
                             break;
-                        } else if (cmd == 'p' || cmd == 'P') {
+                        } else if (cmd == 'p' || cmd == 'P') 
+                        {
                             paused = true;
                             std::cout << "\n=== PAUSED ===\n";
                             std::cout << "Commands: [c]ontinue, [q]uit\n";
                             continue;
-                        } else {
-                            try {
+                        } else 
+                        {
+                            try 
+                            {
                                 double value = std::stod(line);
                                 throttlePosition = std::clamp(value / 100.0, 0.0, 1.0);
-                            } catch (...) {
+                            } catch (...) 
+                            {
                                 std::cerr << "Invalid throttle input.\n";
                             }
                         }
                     }
                 }
-            } else {
-                if (scheduledThrottle >= 0.0 && timeSeconds <= cmdThrottleDuration) {
+            } else 
+            {
+                if (scheduledThrottle >= 0.0 && timeSeconds <= cmdThrottleDuration) 
+                {
                     throttlePosition = scheduledThrottle;
-                } else if (scheduledThrottle >= 0.0 && cmdThrottleDuration > 0.0) {
+                } else if (scheduledThrottle >= 0.0 && cmdThrottleDuration > 0.0) 
+                {
                     throttlePosition = 0.0;
                 }
             }
@@ -287,11 +334,13 @@ int main(int argc, char* argv[])
         cooling.update(dt, engine.state().load, 20.0, turbo.temperature());
         engine.update(dt, throttlePosition, fuel, intake, turbo, cooling, sensors, ecu);
 
-        if (can.isInitialized()) {
+        if (can.isInitialized()) 
+        {
             can.sendEngineState(engine, sensors);
         }
 
-        if (static_cast<int>(timeSeconds / dt) % 20 == 0) {
+        if (static_cast<int>(timeSeconds / dt) % 20 == 0)
+        {
             const auto& state = engine.state();
             std::cout << std::fixed << std::setprecision(1)
                       << "t=" << timeSeconds << "s "

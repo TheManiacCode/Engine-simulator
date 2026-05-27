@@ -112,8 +112,8 @@ void CANBus::sendEngineState(const Engine& engine, const Sensors& sensors) const
     frame.data[1] = static_cast<uint8_t>(std::clamp(engine.state().fuelRate * 8.0, 0.0, 255.0));
     frame.data[2] = static_cast<uint8_t>(std::clamp(sensors.readings().boostPressure * 50.0, 0.0, 255.0));
     frame.data[3] = static_cast<uint8_t>(std::clamp(state.airMassFlow * 36.0, 0.0, 255.0));
-    frame.data[4] = 0;
-    frame.data[5] = 0;
+    frame.data[4] = static_cast<uint8_t>(std::clamp(state.fuelTemp * 2.0, 0.0, 255.0));
+    frame.data[5] = static_cast<uint8_t>(std::clamp(state.mafVoltage * 50.0, 0.0, 255.0));
     frame.data[6] = 0;
     frame.data[7] = 0;
     write(socketFd_, &frame, sizeof(frame));

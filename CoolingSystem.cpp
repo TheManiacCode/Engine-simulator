@@ -50,6 +50,8 @@ void CoolingSystem::update(double dt, double engineLoad, double ambientTemp, dou
     coolantTemp_ += (heatInput - (coolantTemp_ - ambientTemp) * coolantDissipation) * dt;
     coolantTemp_ = std::clamp(coolantTemp_, ambientTemp, coolantMax);
 
+    coolantFlow_ = 1.0 + (coolantTemp_ - 90.0) * 0.02;
+
     oilTemp_ += ((coolantTemp_ + 15.0) - oilTemp_) * dt * oilCoolingRate;
     oilTemp_ = std::clamp(oilTemp_, ambientTemp, 150.0);
 
@@ -67,6 +69,10 @@ double CoolingSystem::oilTemp() const
     return oilTemp_;
 }
 
+double CoolingSystem::coolantPressure() const
+{
+    return coolantFlow_;
+}
 double CoolingSystem::exhaustTemp() const
 {
     return exhaustTemp_;

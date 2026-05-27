@@ -1,4 +1,4 @@
-# Yo, just made a little Diesel-engine simulator to poke around in.
+# Hello, this is just  a little Diesel-engine simulator to poke around in, look at torque numbers and compare how rpm numbers and nm are affected.
 Max torque number i got was 214Nm and 174 hp. Made this for fun, it is designed around the peugeot engine DV6C or rather the volvo D4162T engine more specifically with a tweaked turbo and with different coolant options.
 Works for demonstrating simple engine internal workings.
 program runs in terminal.
@@ -31,5 +31,7 @@ Mostly just shows off what happens to a engine when it is running for demonstrat
 Some components have health that will signal when it gets damaged to indicate that the car gets hurt by pushing it too much. The wear and tear is not super accurate but at least an indication to the wear the engine takes from pushing it. 
 The exhaust gases sensors is not something I have a clue about so the readings are wierd but should give you an indication of what it reads.
 ## Can?
-Yes, I have a can sender that should send out decent can messages. My idea is to use a vcan to send the can messages on and pick them up on another script using a simple python script.
-If you want to you could when running the script also add where the can messages should go, example: ./engineSimulator vcan0
+Yes you can, the program contains a can sender that should send out normal recievable can messages. My idea is to use a virtualcan socket to send the can messages on and pick them up on another script using a simple python script.
+If you want to send the can messages to a socket you could write when starting the script also add where the can messages should go, example: ./engineSimulator vcan0
+
+##### Credits: Johan
