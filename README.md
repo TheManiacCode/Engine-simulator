@@ -30,8 +30,8 @@ The terminal prints a big string that indicates what is happening to the engine,
 Mostly just shows off what happens to a engine when it is running for demonstration or to understand it.
 Some components have health that will signal when it gets damaged to indicate that the car gets hurt by pushing it too much. The wear and tear is not super accurate but at least an indication to the wear the engine takes from pushing it. 
 The exhaust gases sensors is not something I have a clue about so the readings are wierd but should give you an indication of what it reads.
-## Can?
+## Can I?
 Yes you can, the program contains a can sender that should send out normal recievable can messages. My idea is to use a virtualcan socket to send the can messages on and pick them up on another script using a simple python script.
 If you want to send the can messages to a socket you could write when starting the script also add where the can messages should go, example: ./engineSimulator vcan0
-
+If you want help or a tool to help you decipher the can signals check out the other project called EngineSimCanDecoder link to the github will be up at a later date.
 ##### Credits: Johan
